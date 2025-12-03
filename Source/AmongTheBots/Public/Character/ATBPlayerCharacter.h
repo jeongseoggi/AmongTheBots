@@ -45,6 +45,9 @@ public:
 
 	void SetMoveSpeed();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetMoveSpeed();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -95,11 +98,13 @@ protected:
 	void ClientRPCPlayMeleeAttackMontage(AATBPlayerCharacter* InTargetCharacter);
 
 	UFUNCTION(Server,Reliable)
-	void ServerRPCPerformMeleeHit(AATBPlayerCharacter* InDamagedCharacter);
+	void ServerRPCPerformMeleeHit(AATBPlayerCharacter* InDamagedCharacter, float Damage);
 
 
 private:
 	void DrawDebugMeleeAttack(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
 	TArray<TObjectPtr<AActor>> OverlappedEnemiesArray;
 
+	float WeaponDamage;
+	float SelfTakeDamage;
 };

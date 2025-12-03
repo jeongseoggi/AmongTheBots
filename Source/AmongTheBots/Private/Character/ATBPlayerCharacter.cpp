@@ -34,6 +34,9 @@ AATBPlayerCharacter::AATBPlayerCharacter()
 	StatusComponent = CreateDefaultSubobject<UStatusComponent>(TEXT("Status"));
 
 	bCanAttack = true;
+
+	WeaponDamage = 30.0f;
+	SelfTakeDamage = 10.0f;
 }
 
 
@@ -49,10 +52,10 @@ void AATBPlayerCharacter::MeleeAttackEnd()
 
 void AATBPlayerCharacter::ApplyAttack(AATBPlayerCharacter* InDamagedCharacter)
 {
-	if (InDamagedCharacter && HasAuthority() == false)
+	/*if (InDamagedCharacter && HasAuthority() == false)
 	{
 		ServerRPCPerformMeleeHit(InDamagedCharacter);
-	}
+	}*/
 }
 
 void AATBPlayerCharacter::SetOverlappedEnemies(TArray<TObjectPtr<AActor>> OverlappedEnemies)
@@ -68,11 +71,11 @@ void AATBPlayerCharacter::SetOverlappedEnemies(TArray<TObjectPtr<AActor>> Overla
 				{
 					continue;
 				}
-				ServerRPCPerformMeleeHit(OtherPlayer);
+				ServerRPCPerformMeleeHit(OtherPlayer, WeaponDamage);
 			}
 			else if (AATBBotCharacter* NPCCharacter = Cast<AATBBotCharacter>(TargetActor))
 			{
-				ServerRPCPerformMeleeHit(this);
+				ServerRPCPerformMeleeHit(this, SelfTakeDamage);
 			}
 		}
 	}
@@ -97,7 +100,7 @@ void AATBPlayerCharacter::DeadProcessing()
 
 void AATBPlayerCharacter::SetMoveSpeed()
 {
-	if (HasAuthority())
+	if (HasAuthority() || IsLocallyControlled())
 	{
 		NetUpdateFrequency = 150.f;
 		MinNetUpdateFrequency = 60.f;
@@ -109,9 +112,19 @@ void AATBPlayerCharacter::SetMoveSpeed()
 			float CurrentWalkSpeed = CharacterMovementComp->MaxWalkSpeed;
 			CharacterMovementComp->MaxWalkSpeed = CurrentWalkSpeed * 2.0f;
 			CharacterMovementComp->NetworkMaxSmoothUpdateDistance = 200.0f;
-
-			UE_LOG(LogTemp, Warning, TEXT("%f"), CharacterMovementComp->MaxWalkSpeed);
 		}
+	}
+}
+
+void AATBPlayerCharacter::MulticastSetMoveSpeed_Implementation()
+{
+	UCharacterMovementComponent* CharacterMovementComp = GetCharacterMovement();
+
+	if (IsValid(CharacterMovementComp))
+	{
+		float CurrentWalkSpeed = CharacterMovementComp->MaxWalkSpeed;
+		CharacterMovementComp->MaxWalkSpeed = CurrentWalkSpeed * 2.0f;
+		CharacterMovementComp->NetworkMaxSmoothUpdateDistance = 200.0f;
 	}
 }
 
@@ -276,11 +289,11 @@ void AATBPlayerCharacter::ClientRPCPlayMeleeAttackMontage_Implementation(AATBPla
 	}
 }
 
-void AATBPlayerCharacter::ServerRPCPerformMeleeHit_Implementation(AATBPlayerCharacter* InDamagedCharacter)
+void AATBPlayerCharacter::ServerRPCPerformMeleeHit_Implementation(AATBPlayerCharacter* InDamagedCharacter, float Damage)
 {
 	if (IsValid(InDamagedCharacter) == true)
 	{
-		const float MeleeAttackDamage = 30.f;
+		const float MeleeAttackDamage = Damage;
 		FDamageEvent DamageEvent;
 		InDamagedCharacter->TakeDamage(MeleeAttackDamage, DamageEvent, GetController(), this);
 	}

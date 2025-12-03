@@ -42,25 +42,6 @@ void AWeaponActor::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AAc
 void AWeaponActor::Attack()
 {
 	SphereComponent->SetGenerateOverlapEvents(true);
-
-	if (UWorld* World = GetWorld())
-	{
-		FVector Location = SphereComponent->GetComponentLocation();
-		float Radius = SphereComponent->GetScaledSphereRadius();
-		float HalfHeight = Radius; // Sphere라서 길이=반지름으로 설정
-		FColor Color = FColor::Red;
-
-		DrawDebugCapsule(
-			World,
-			Location,
-			HalfHeight,
-			Radius,
-			FQuat::Identity,   // 회전 없음
-			Color,
-			false,
-			0.5f               // 0.5초 동안 표시
-		);
-	}
 }
 
 void AWeaponActor::AttackEnd()

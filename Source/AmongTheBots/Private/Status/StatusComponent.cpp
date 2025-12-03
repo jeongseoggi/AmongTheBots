@@ -75,14 +75,13 @@ void UStatusComponent::OnRep_CurrentHP()
 
 void UStatusComponent::BuffApply()
 {
-	
 	if (AActor* Player = GetOwner())
 	{
 		if (AATBPlayerCharacter* PlayerCharacter = Cast<AATBPlayerCharacter>(Player))
 		{
 			if (PlayerCharacter->HasAuthority() && bIsBuffApply == false)
 			{
-				PlayerCharacter->SetMoveSpeed();
+				PlayerCharacter->MulticastSetMoveSpeed();
 				bIsBuffApply = true;
 			}
 		}
