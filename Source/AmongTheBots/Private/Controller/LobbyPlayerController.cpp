@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Game/LobbyGameModeBase.h"
 #include "PlayerState/LobbyPlayerState.h"
+#include "Game/ATBGameInstance.h"
 
 void ALobbyPlayerController::BeginPlay()
 {
@@ -22,7 +23,15 @@ void ALobbyPlayerController::OnRep_PlayerState()
 		LobbyPS->OnPlayerIndexChanged.AddDynamic(this, &ALobbyPlayerController::LobbyButtonSetting);
 	}
 
-	ServerRPCJoinLobby(); //내가 로비에 접속 했음을 알림 (다른 플레이어에게)	
+	UGameInstance* GI = UGameplayStatics::GetGameInstance(this);
+	if (IsValid(GI))
+	{
+		if (UATBGameInstance* ATBGI = Cast<UATBGameInstance>(GI))
+		{
+			const FString& NickName = ATBGI->GetPlayerNickName();
+			ServerRPCJoinLobby(NickName); //내가 로비에 접속 했음을 알림 (다른 플레이어에게)	
+		}
+	}
 }
 
 void ALobbyPlayerController::AddLobbyPlayerList(FString PlayerName)
@@ -50,7 +59,7 @@ void ALobbyPlayerController::ServerRPCStartGame_Implementation()
 	}
 }
 
-void ALobbyPlayerController::ServerRPCJoinLobby_Implementation()
+void ALobbyPlayerController::ServerRPCJoinLobby_Implementation(const FString& NickName)
 {
 	AGameModeBase* GM = UGameplayStatics::GetGameMode(this);
 
@@ -58,13 +67,12 @@ void ALobbyPlayerController::ServerRPCJoinLobby_Implementation()
 	{
 		if (ALobbyGameModeBase* LobbyGM = Cast<ALobbyGameModeBase>(GM))
 		{
-			LobbyGM->JoinPlayerInLobby(this);
+			LobbyGM->JoinPlayerInLobby(this, NickName);
 			LobbyGM->FirstSyncLobbyList();
 		}
 	}
 
 }
-
 
 void ALobbyPlayerController::ClientRPCExitGame_Implementation()
 {

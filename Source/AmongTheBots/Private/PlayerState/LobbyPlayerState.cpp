@@ -23,6 +23,7 @@ void ALobbyPlayerState::CopyProperties(APlayerState* PlayerState)
 	if (IsValid(LobbyPS))
 	{
 		LobbyPS->PlayerInfo = PlayerInfo;
+		LobbyPS->MaxPlayer = MaxPlayer;
 	}
 }
 

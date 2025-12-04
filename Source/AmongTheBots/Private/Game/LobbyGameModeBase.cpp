@@ -23,7 +23,7 @@ void ALobbyGameModeBase::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
-void ALobbyGameModeBase::JoinPlayerInLobby(ALobbyPlayerController* LobbyPC)
+void ALobbyGameModeBase::JoinPlayerInLobby(ALobbyPlayerController* LobbyPC, const FString& NickName)
 {
 	if (ALobbyGameStateBase* LobbyGS = GetGameState<ALobbyGameStateBase>())
 	{
@@ -32,7 +32,7 @@ void ALobbyGameModeBase::JoinPlayerInLobby(ALobbyPlayerController* LobbyPC)
 			if (LobbyPS->PlayerInfo.PlayerName.IsEmpty())
 			{
 				FPlayerInfo Infos;
-				Infos.PlayerName = TEXT("Player") + FString::FromInt(LobbyPlayerControllers.Num());
+				Infos.PlayerName = NickName;
 				Infos.PlayerIndex = LobbyPlayerControllers.Num();
 				Infos.PlayerJob = EPlayerJob::None;
 				Infos.bIsArrest = false;
@@ -165,6 +165,7 @@ void ALobbyGameModeBase::PreGameStartJobSetting()
 	{
 		if (ALobbyPlayerState* LobbyPS = LobbyPC->GetPlayerState<ALobbyPlayerState>())
 		{
+			LobbyPS->MaxPlayer = LobbyPlayerControllers.Num();
 			if (PoliceCount != 0)
 			{
 				int32 Job = RandomJob(); //랜덤한 직업 설정

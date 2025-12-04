@@ -20,7 +20,7 @@ public:
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
-	void JoinPlayerInLobby(ALobbyPlayerController* LobbyPC);
+	void JoinPlayerInLobby(ALobbyPlayerController* LobbyPC, const FString& NickName);
 
 	void FirstSyncLobbyList();
 

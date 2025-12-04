@@ -27,7 +27,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchType)
-	EMatchType CurMatchType = EMatchType::Ready;
+	EMatchType CurMatchType = EMatchType::None;
 
 	UFUNCTION()
 	void NotifyPlayers(FString NotifyMsg);

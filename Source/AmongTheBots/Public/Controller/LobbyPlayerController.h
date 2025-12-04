@@ -53,6 +53,6 @@ protected:
 	TObjectPtr<ULobbyWidget> LobbyWidgetInstance;
 
 	UFUNCTION(Server,Reliable)
-	void ServerRPCJoinLobby();
+	void ServerRPCJoinLobby(const FString& NickName);
 
 };

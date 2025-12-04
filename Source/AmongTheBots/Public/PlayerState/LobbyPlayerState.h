@@ -62,6 +62,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientSettingForPlayerIndex();
 
+	UPROPERTY(Replicated)
+	int32 MaxPlayer;
+
 protected:
 	UFUNCTION()
 	void OnRep_PlayerInfo();

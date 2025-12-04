@@ -50,6 +50,9 @@ protected:
 	UFUNCTION()
 	void SpawnBots();
 
+	UFUNCTION()
+	void GamePlayerReady();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ReadyTime;
 
@@ -72,4 +75,6 @@ private:
 	bool bIsPoliceWin;
 
 	int32 BotSpawnCount = 10;
+
+	int32 MaxPlayers;
 };

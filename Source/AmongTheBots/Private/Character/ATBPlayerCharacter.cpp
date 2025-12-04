@@ -94,7 +94,10 @@ void AATBPlayerCharacter::DeadProcessing()
 {
 	if (IsLocallyControlled())
 	{
-		ServerRPCDeathProcessing();
+		if (AATBPlayerController* ATBPC = Cast<AATBPlayerController>(Controller))
+		{
+			ServerRPCDeathProcessing(ATBPC);
+		}
 	}
 }
 
@@ -299,20 +302,14 @@ void AATBPlayerCharacter::ServerRPCPerformMeleeHit_Implementation(AATBPlayerChar
 	}
 }
 
-void AATBPlayerCharacter::ServerRPCDeathProcessing_Implementation()
+void AATBPlayerCharacter::ServerRPCDeathProcessing_Implementation(AATBPlayerController* PC)
 {
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+	if (AGameModeBase* GM = UGameplayStatics::GetGameMode(this))
 	{
-		if (AGameModeBase* GM = UGameplayStatics::GetGameMode(this))
+		if (AATBGameModeBase* ATBGM = Cast<AATBGameModeBase>(GM))
 		{
-			if (AATBGameModeBase* ATBGM = Cast<AATBGameModeBase>(GM))
-			{
-				if (AATBPlayerController* ATBPC = Cast<AATBPlayerController>(PC))
-				{
-					ATBPC->UnPossess();
-					ATBGM->PlayerDead(ATBPC);
-				}
-			}
+			PC->UnPossess();
+			ATBGM->PlayerDead(PC);
 		}
 	}
 }

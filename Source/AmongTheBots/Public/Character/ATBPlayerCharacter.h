@@ -14,6 +14,7 @@ class AWeaponActor;
 class UAnimMontage;
 class UStatusComponent;
 class UMainHUD;
+class AATBPlayerController;
 
 UCLASS()
 class AMONGTHEBOTS_API AATBPlayerCharacter : public ACharacter
@@ -41,7 +42,7 @@ public:
 	void DeadProcessing();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPCDeathProcessing();
+	void ServerRPCDeathProcessing(AATBPlayerController* MyController);
 
 	void SetMoveSpeed();
 

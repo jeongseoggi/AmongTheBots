@@ -1,6 +1,4 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Game/ATBGameModeBase.h"
 #include "Controller/ATBPlayerController.h"
 #include "Game/ATBGameStateBase.h"
@@ -68,6 +66,7 @@ void AATBGameModeBase::OnMainTimerElapsed()
 		switch (ATBGS->CurMatchType)
 		{
 		case EMatchType::None:
+			GamePlayerReady();
 			break;
 		case EMatchType::Ready:
 			--ReadyTime;
@@ -112,14 +111,20 @@ void AATBGameModeBase::SettingPlayers()
 			{
 				if (AATBPlayerController* ATBPC = Cast<AATBPlayerController>(PC))
 				{
-					AllPlayers.Add(ATBPC);
-					if (LobbyPS->PlayerInfo.PlayerJob == EPlayerJob::Police)
+					if (!AllPlayers.Contains(ATBPC))
 					{
-						PolicePlayers.Add(ATBPC);
-					}
-					else if (LobbyPS->PlayerInfo.PlayerJob == EPlayerJob::Theif)
-					{
-						ThiefPlayers.Add(ATBPC);
+						AllPlayers.Add(ATBPC);
+						MaxPlayers = LobbyPS->MaxPlayer;
+						if (LobbyPS->PlayerInfo.PlayerJob == EPlayerJob::Police)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Police : %s"), *LobbyPS->PlayerInfo.PlayerName);
+							PolicePlayers.Add(ATBPC);
+						}
+						else if (LobbyPS->PlayerInfo.PlayerJob == EPlayerJob::Theif)
+						{
+							
+							ThiefPlayers.Add(ATBPC);
+						}
 					}
 				}
 			}
@@ -163,6 +168,27 @@ void AATBGameModeBase::SpawnBots()
 		}
 	}
 
+}
+
+void AATBGameModeBase::GamePlayerReady()
+{
+	if (AllPlayers.Num() != GameState->PlayerArray.Num())
+	{
+		SettingPlayers();
+	}
+
+	if (MaxPlayers != AllPlayers.Num())
+	{
+		NotifyAllPlayers(TEXT("Waiting For All Players..."));
+	}
+	else
+	{
+		AATBGameStateBase* ATBGS = GetGameState<AATBGameStateBase>();
+		if (IsValid(ATBGS))
+		{
+			ATBGS->CurMatchType = EMatchType::Ready;
+		}
+	}
 }
 
 void AATBGameModeBase::PlayerDead(AATBPlayerController* Player)
@@ -242,7 +268,6 @@ void AATBGameModeBase::UpdateThievesCount()
 	if (AATBGameStateBase* ATBGS = GetGameState<AATBGameStateBase>())
 	{
 		ATBGS->ThievesCount = ThiefPlayers.Num();
-
 		if (ThiefPlayers.Num() == 0 || PolicePlayers.Num() == 0)
 		{
 			ATBGS->CurMatchType = EMatchType::Ending;
